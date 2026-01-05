@@ -1,0 +1,3 @@
+paper_id,polymer_name,backbone_name_text,sidechain_name_text,sidechain_type,sidechain_length,device_type,confidence_text
+paper001,BDT-alkyl,BDT,dodecyl,alkyl,12,OPV,high
+paper002,NDI-EG,NDI,EG side chain,ether,2,OECT,medium

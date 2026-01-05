@@ -1,0 +1,30 @@
+OPSIN: Open Parser for Systematic IUPAC Nomenclature
+
+  OPSIN is a library for converting chemical names, especially organic chemical names, into structures. OPSIN can output to CML (Chemical Markup Language), SMILES or to InChI.
+
+  You can grab the latest released version of OPSIN in jar form from {{{https://github.com/dan2097/opsin/releases}GitHub}}.
+  OPSIN is open source under the {{{https://opensource.org/licenses/MIT}MIT License}}. To see or contribute to the codebase please go to {{{https://github.com/dan2097/opsin/}GitHub}}.
+  
+  OPSIN uses MAVEN for dependency management, hence the easiest way to depend on OPSIN is by adding OPSIN to your pom.xml. See OPSIN's documentation for more information.
+  Released versions of OPSIN are available from {{{https://maven.ch.cam.ac.uk/content/repositories/releases/uk/ac/cam/ch/opsin/} here}}.
+  SNAPSHOT versions are available from {{{https://maven.ch.cam.ac.uk/content/repositories/snapshots/uk/ac/cam/ch/opsin/} here}}.
+  
+  OPSIN is available as a web service for demonstration purposes and for light batch processing {{{http://opsin.ch.cam.ac.uk} here}}.
+
+Attribution
+
+  If you use OPSIN to produce results for publication, then it would be great if you could cite us:
+
+    Chemical Name to Structure: OPSIN, an Open Source Solution
+    Daniel M. Lowe, Peter T. Corbett, Peter Murray-Rust, Robert C. Glen
+    Journal of Chemical Information and Modeling 2011 51 (3), 739-753
+
+Acknowledgements
+
+   Recent performance improvements have been made possible with the use of the excellent YourKit profiling tool.
+
+   YourKit is kindly supporting open source projects with its full-featured Java Profiler.
+YourKit, LLC is the creator of innovative and intelligent tools for profiling
+Java and .NET applications. Take a look at YourKit's leading software products:
+{{{http://www.yourkit.com/java/profiler/index.jsp}YourKit Java Profiler}} and
+{{{http://www.yourkit.com/.net/profiler/index.jsp}YourKit .NET Profiler}}.

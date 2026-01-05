@@ -1,0 +1,12 @@
+{
+  "coverage_sidechain": 0.2984189723320158,
+  "coverage_backbone": 0.09288537549407115,
+  "coverage_repeat_unit": 0.9051383399209486,
+  "manual_review_rate": 0.09486166007905138,
+  "opsin_coverage": 0.09288537549407115,
+  "top_failure_reasons": {
+    "missing_sidechain": 355,
+    "missing_repeat_unit": 48,
+    "manual_review": 48
+  }
+}

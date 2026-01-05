@@ -1,0 +1,12 @@
+# Example image/fragment candidate pool reflecting real schema
+# paper_name: source paper identifier (optional; may be blank)
+# image_path: path to source image (optional)
+# polymer_name: polymer label (links to polymer dataset when present)
+# segment_index: fragment index within an image
+# raw_smiles / cleaned_smiles / canonical_smiles: candidate SMILES variants
+# status: parse status flag (ok/invalid/etc.)
+paper_name,image_path,polymer_name,segment_index,raw_smiles,cleaned_smiles,canonical_smiles,status
+paper_A,img/paper_A_001.png,PTC8,0,CCCCCCCCCCCCc1sc2ccc(sc2)c1,CCCCCCCCCCCCc1sc2ccc(sc2)c1,CCCCCCCCCCCCc1sc2ccc(sc2)c1,ok
+paper_B,img/paper_B_002.png,PTCO8,1,CCCCCCCCCCCCCCCCc1csc2ccsc12,CCCCCCCCCCCCCCCCc1csc2ccsc12,CCCCCCCCCCCCCCCCc1csc2ccsc12,ok
+paper_C,img/paper_C_003.png,EH4P-Th,0,CC(C)CCCCCCc1ccc(cc1)S,CC(C)CCCCCCc1ccc(cc1)S,CC(C)CCCCCCc1ccc(cc1)S,ok
+paper_D,img/paper_D_004.png,NDI-EG,2,OCCOCCN1c2ccc(cc2)c(=O)n(c3ccc(cc3)C(=O)N1),OCCOCCN1c2ccc(cc2)c(=O)n(c3ccc(cc3)C(=O)N1),OCCOCCN1c2ccc(cc2)c(=O)n(c3ccc(cc3)C(=O)N1),ok

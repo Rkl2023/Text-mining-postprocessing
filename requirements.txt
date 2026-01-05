@@ -1,0 +1,30 @@
+# PolyStruct-Mine dependencies (macOS ARM64, Python 3.10 tested)
+# Versions pinned for offline/reproducible installs; all compatible with Python 3.10.
+
+# Core data stack
+pandas==2.2.3             # Last Py3.10-compatible pandas
+numpy==1.26.4             # Stable numpy for Py3.10/arm64
+
+# Chemistry tooling (OPSIN unavailable on Py3.10 arm64; use chemparse as lightweight alternative)
+rdkit==2023.9.1           # SMILES validation, salt removal, Murcko scaffolds
+chemparse==0.1.3          # Simple name parsing fallback when OPSIN wheel is unavailable
+
+# Optional: enable OPSIN parsing via Java bridge if installed
+jpype1>=1.5.0             # required by opsin-wrapper for JVM bridge
+
+# Logging / progress
+loguru==0.7.2             # Structured logging (optional enhancement)
+tqdm==4.67.1              # Progress bars for large datasets
+
+# Serialization / storage adapters
+pyarrow==16.1.0           # Parquet/Arrow IO (Py3.10-compatible)
+pymongo==4.10.1           # MongoDB export/import hooks
+SQLAlchemy==2.0.36        # Relational DB connectivity
+PyYAML==6.0.2             # Config files for batch runs
+
+# Modeling / analysis
+scikit-learn==1.5.2       # Feature scaling / ranking heuristics
+
+# Visualization UI
+streamlit==1.41.1         # Lightweight web UI
+plotly==5.24.1            # Metrics bar charts within Streamlit

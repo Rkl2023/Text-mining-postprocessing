@@ -1,0 +1,14 @@
+# Example polymer-centric dataset reflecting real schema (text-mined)
+# polymer_name: author-reported polymer label
+# backbone: backbone descriptor text
+# side_chain: side-chain descriptor text
+# side_chain_type: qualitative class (alkyl/ether/ionic) if available
+# side_chain_length: numeric length descriptor if extracted
+# device_type: target device (OPV/OECT/OFET/etc.)
+# Additional experimental fields may appear in real data (film_thickness, mobility_h/e, etc.)
+polymer_name,backbone,side_chain,side_chain_type,side_chain_length,device_type
+PTC8,thiophene-carbazole,dodecyl,alkyl,12,OFET
+PTCO8,thiophene-carbazole,2-octyldodecyl,alkyl,20,OECT
+EH4P-Th,thiophene-phenylene,ethylhexyl,alkyl,8,OPV
+NDI-EG,naphthalene diimide,triethylene glycol,ether,,OECT
+PTC1,thiophene-carbazole,methyl,alkyl,1,OFET

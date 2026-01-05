@@ -1,0 +1,42 @@
+{
+  "data/example_polymer_data.csv": {
+    "type": "polymer_data",
+    "confidence": 1.0,
+    "columns": [
+      "polymer_name",
+      "backbone",
+      "side_chain",
+      "side_chain_type",
+      "side_chain_length",
+      "device_type"
+    ],
+    "matched_signature": [
+      "side_chain",
+      "polymer_name",
+      "backbone"
+    ]
+  },
+  "data/example_image_candidates.csv": {
+    "type": "image_candidate_pool",
+    "confidence": 1.0,
+    "columns": [
+      "paper_name",
+      "image_path",
+      "polymer_name",
+      "segment_index",
+      "raw_smiles",
+      "cleaned_smiles",
+      "canonical_smiles",
+      "status"
+    ],
+    "matched_signature": [
+      "status",
+      "canonical_smiles",
+      "raw_smiles"
+    ]
+  },
+  "summary": {
+    "selected_polymer_file": "data/example_polymer_data.csv",
+    "selected_image_file": "data/example_image_candidates.csv"
+  }
+}

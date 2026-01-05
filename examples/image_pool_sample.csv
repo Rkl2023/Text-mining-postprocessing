@@ -1,0 +1,3 @@
+paper_id,image_id,fragment_id,candidate_smiles,parse_status,has_metal,has_counterion,eg_motif_count,max_aliphatic_chain_len,heteroatom_counts,heavy_atom_count
+paper001,img1,frag1,CCCCCCCCCCCCc1sc2ccc(sc2)c1,success,False,False,0,12,"S:2",38
+paper002,img2,frag1,OCCOCCN1c2ccc(cc2)c(=O)n(c3ccc(cc3)C(=O)N1),success,False,False,2,2,"O:4,N:2",36
