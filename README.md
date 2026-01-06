@@ -11,7 +11,7 @@ Checklist (quick start)
 
 Project overview
 ----------------
-PolyStruct-Mine extracts polymer structural information from text-mined names (OPSIN + heuristics) and image-derived candidates (DECIMER/image pool). It standardizes backbone and side-chain representations, matches text rows to image candidates, and outputs repeat-unit SMILES with provenance, confidence, and audit logs.
+PolyStruct-Mine extracts polymer structural information from text-mined names (OPSIN + heuristics) and image-derived candidates. It standardizes backbone and side-chain representations, matches text rows to image candidates, and outputs repeat-unit SMILES with provenance, confidence, and audit logs.
 
 Pipeline architecture (Layers 0–4)
 1. Layer 0 — Standardization: Normalize schema/columns, clean names/SMILES, log schema report.
@@ -66,6 +66,46 @@ Java/OPSIN requirements
   - Cache: `~/.opsin/cache.json` (persisted SMILES per name; flush by deleting the file). Logging uses `polymer_pipeline` logger.
 - Important: JVM must start only once per process; restart Streamlit after changing JVM args.
 
+Java / JVM Installation (Required for OPSIN)
+--------------------------------------------
+OPSIN is a Java library; JPype loads the OPSIN CLI JAR. Use an LTS JDK (17+ recommended).
+
+- macOS (Homebrew):
+  ```bash
+  brew install --cask temurin@17
+  java -version
+  /usr/libexec/java_home -V
+  export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+  ```
+  Optional Maven (for rebuilding OPSIN): `brew install maven` then `mvn -v`.
+
+- Ubuntu/Debian:
+  ```bash
+  sudo apt update
+  sudo apt install -y openjdk-17-jdk maven
+  java -version
+  mvn -v
+  # Optional JAVA_HOME
+  export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))
+  ```
+
+- Windows/WSL2:
+  - Install Temurin/OpenJDK 17 via installer or winget; on WSL use `sudo apt install -y openjdk-17-jdk`.
+  - Verify: `java -version`. Set `JAVA_HOME` to the JDK root if needed.
+
+OPSIN build (if jar missing)
+```bash
+cd OPSIN
+mvn -pl opsin-cli -am package -DskipTests
+ls opsin-cli/target/opsin-cli-3.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+JPype/JVM troubleshooting:
+- `java: command not found`: install JDK and ensure PATH/JAVA_HOME set.
+- JAR not found: point `OPSIN_JAR_PATH` in `polymer_pipeline/utils/opsin_bridge.py` to the built JAR.
+- JVM cannot start: verify `JVM_PATH` (e.g., `python - <<'PY'\nimport jpype; print(jpype.getDefaultJVMPath())\nPY`), restart process if JVM already started.
+- Clear OPSIN cache: remove `~/.opsin/cache.json`.
+
 Running the Streamlit UI
 ------------------------
 ```bash
@@ -75,6 +115,7 @@ Features:
 - Upload/select text polymer CSV and image pool CSV.
 - Run pipeline (cached by file signature); outputs `polymer_structures_groundtruth.csv` and `logs/statistics_report.json`.
 - Preview results table; download CSV/LLM export.
+- SMILES Scratchpad Tester (isolated) to repair/canonicalize arbitrary SMILES and render RDKit SVG (does not affect pipeline).
 - SMILES Scratchpad Tester (isolated) to repair/canonicalize arbitrary SMILES and render RDKit SVG (does not affect pipeline).
 Logs: `logs/run_summary.log`; metrics: `logs/statistics_report.json`; OPSIN traces: `logs/opsin_trace.csv`; candidate scores: `logs/candidate_scores.csv`.
 

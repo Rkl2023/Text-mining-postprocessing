@@ -11,7 +11,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Tuple
+from typing import Optional, Tuple
 import ast
 
 import pandas as pd
@@ -273,6 +273,120 @@ def _safe_rerun():
         st.experimental_rerun()
 
 
+def _coerce_list_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Safely coerce known list-like columns when reloaded from CSV/XLSX.
+    """
+
+    def _coerce_cell_to_list_or_scalar(x):
+        if isinstance(x, (list, tuple)):
+            return list(x)
+        if x is None:
+            return []
+        try:
+            if pd.isna(x):
+                return []
+        except Exception:
+            pass
+        if isinstance(x, str):
+            s = x.strip()
+            if s.startswith("[") and s.endswith("]"):
+                try:
+                    v = ast.literal_eval(s)
+                    return list(v) if isinstance(v, (list, tuple)) else v
+                except Exception:
+                    return x
+        return x
+
+    list_cols = [
+        "sidechain_smiles_list",
+        "sidechain_smiles_list_text",
+        "sidechain_smiles_list_text_maybe",
+    ]
+    if df is None or df.empty:
+        return df
+    df = df.copy()
+    for col in list_cols:
+        if col in df.columns:
+            df[col] = df[col].apply(_coerce_cell_to_list_or_scalar)
+    return df
+
+
+def _load_corrected_table(uploaded_file) -> Tuple[pd.DataFrame, Optional[str]]:
+    if uploaded_file is None:
+        return None, "No file uploaded"
+    try:
+        name = uploaded_file.name.lower()
+        if name.endswith(".csv"):
+            df = pd.read_csv(uploaded_file)
+        elif name.endswith(".xlsx"):
+            df = pd.read_excel(uploaded_file)
+        else:
+            return None, "Unsupported file type"
+        df.columns = [c.strip() for c in df.columns]
+
+        # Column aliasing for corrected tables
+        if "paper_id" not in df.columns and "paper_id_display" in df.columns:
+            df["paper_id"] = df["paper_id_display"]
+        if "backbone_smiles_text" not in df.columns and "backbone_smiles" in df.columns:
+            df["backbone_smiles_text"] = df["backbone_smiles"]
+
+        # Build sidechain_smiles_list/text from numbered columns if present
+        numbered_cols = [c for c in ["sidechain_smiles_text_1", "sidechain_smiles_text_2", "sidechain_smiles_text_3"] if c in df.columns]
+        if numbered_cols:
+            def _assemble_sidechains(row):
+                vals = []
+                for col in numbered_cols:
+                    val = row[col] if col in row else None
+                    if isinstance(val, str) and val.strip():
+                        vals.append(val.strip())
+                return vals
+            df["sidechain_smiles_list"] = df.apply(_assemble_sidechains, axis=1)
+            df["sidechain_smiles_text"] = df["sidechain_smiles_list"].apply(lambda lst: lst[0] if isinstance(lst, list) and len(lst) > 0 else None)
+            df["sidechain_smiles_list_text"] = df["sidechain_smiles_list"].apply(lambda lst: str(lst) if isinstance(lst, list) else None)
+
+        df = _coerce_list_columns(df)
+        required = ["paper_id"]
+        missing = [r for r in required if r not in df.columns]
+        if missing:
+            return None, f"Missing required columns: {missing}"
+        return df, None
+    except Exception as exc:
+        return None, str(exc)
+
+
+def render_review_panel(df: pd.DataFrame, panel_key: str = "main"):
+    """
+    Reusable review panel; keys are namespaced by panel_key to avoid collisions.
+    """
+    if df is None or df.empty:
+        st.info("No data to display.")
+        return
+    df_local = _normalize_ids_for_display(df)
+    review_cols = [
+        "paper_id_display",
+        "polymer_name",
+        "backbone_name_text",
+        "sidechain_name_text",
+        "sidechain_smiles_text",
+        "repeat_unit_smiles_full",
+        "backbone_smiles",
+        "confidence",
+        "source_priority",
+        "needs_manual_review",
+    ]
+    visible = [c for c in review_cols if c in df_local.columns]
+    if visible:
+        st.dataframe(df_local[visible])
+    st.markdown("### Search by Paper ID")
+    paper_query = st.text_input(
+        "Enter a Paper ID to review molecule structures",
+        "",
+        key=f"paper_id_query_{panel_key}",
+    )
+    _render_review(df_local, paper_query=paper_query)
+
+
 def _persist_upload(uploaded_file, target_path: Path):
     target_path.parent.mkdir(parents=True, exist_ok=True)
     target_path.write_bytes(uploaded_file.getbuffer())
@@ -508,29 +622,7 @@ def main():
                 st.code((svg or "")[:300] if svg else "No SVG", language="xml")
 
     if df_current is not None:
-        df_current = _normalize_ids_for_display(df_current)
-        review_cols = [
-            "paper_id_display",
-            "polymer_name",
-            "backbone_name_text",
-            "sidechain_name_text",
-            "sidechain_smiles_text",
-            "repeat_unit_smiles_full",
-            "backbone_smiles",
-            "confidence",
-            "source_priority",
-            "needs_manual_review",
-        ]
-        visible = [c for c in review_cols if c in df_current.columns]
-        if visible:
-            st.dataframe(df_current[visible])
-        st.markdown("### Search by Paper ID")
-        paper_query = st.text_input(
-            "Enter a Paper ID to review molecule structures",
-            "",
-            key="paper_id_query_main",
-        )
-        _render_review(df_current, paper_query=paper_query)
+        render_review_panel(df_current, panel_key="main")
         st.markdown("### LLM Review Export")
         if st.button("Download LLM-friendly JSON", key="generate_llm_export"):
             export_path = Path("exports/llm_ready.json")
@@ -548,6 +640,23 @@ def main():
                 st.warning(f"Export failed: {exc}")
 
     st.caption("PolyStruct-Mine · Deterministic polymer structure mining · MIT License · 2025")
+
+    # View-only corrected table uploader and viewer (no pipeline run, isolated state)
+    st.divider()
+    st.info("Upload corrected table (CSV/XLSX) for review only — no pipeline run will occur.")
+    uploaded_corrected = st.file_uploader(
+        "Upload corrected table (CSV / XLSX)",
+        type=["csv", "xlsx"],
+        key="corrected_table_uploader",
+    )
+    corrected_df = None
+    if uploaded_corrected:
+        corrected_df, err = _load_corrected_table(uploaded_corrected)
+        if err:
+            st.error(f"Could not load corrected table: {err}")
+        else:
+            st.success(f"Corrected table loaded: {len(corrected_df)} rows, {len(corrected_df.columns)} columns")
+            render_review_panel(corrected_df, panel_key="corrected")
 
 
 if __name__ == "__main__":  # pragma: no cover
